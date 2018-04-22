@@ -190,3 +190,11 @@ g- destroy
  - goto update() function at PostController then add the code
 
  - then goto destroy() function at PostController to add code
+
+
+---///Enabe Authentication
+
+1- using the following comand to enable all the controller and models creating loging on system
+$ php artisan make:auth
+
+
