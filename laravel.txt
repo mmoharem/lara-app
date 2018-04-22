@@ -1,0 +1,192 @@
+1- creat pages folder under views
+
+2- create controller then set the route to go the controller function then return view
+
+3- we gonna us artisan to creat the controller
+ - $php artisan make:controller pagesController //it creat controller at app/http/controllers
+ - creat index.blade.php under views/pages then and html code
+ - goto env and change the app name to your app name
+
+4- creating layouts under views. then add layout with name (app.blade.php)
+ - then using @yield('content')
+ - @extends('layouts.app')
+   @section('content')
+      your markup
+   @endsection
+
+5- passing values into blade templates
+   public function index(){
+        $title = 'Welcome To Laravel';
+        return view('pages.index', compact('title'));
+    }
+
+    then addind {{$title}} to h1
+
+ - other way to do
+   public function services() {
+        $title = 'Services';
+        return view('pages.services')->with('title', $title);
+    }
+
+    then addind {{$title}} to h1
+
+    - other way using array
+    public function about() {
+        $data = array(
+            'title' => 'About Us'
+        );
+        return view('pages.about')->with($data);
+    }
+
+6- $php artisan make:controller PostsController
+ - $php artisan make:model Post -m // -m for for database migration
+    
+    goto the created posts-table database
+    add the followind two fields
+    $table->string('title');
+            $table->mediumText('body')
+
+    go to .env and add your database setting
+    to prevent error from string in db migration add the followinc code in AppServiceProvider.php
+      use Illuminate\Support\Facades\schema;
+      and at boot function add this
+      (Schema::defaultStringLength(191);)
+    
+ - $ php artisan migrate  //to make your db tables
+
+ 7- using tinker to insert data into database
+  - $php artisan tinker
+    
+        >>> App\Post::count()
+        => 0
+        >>> $post = new App\Post();
+        => App\Post {#687}
+        >>> $post->title = 'Post One';
+        => "Post One"
+        >>> $post->body = 'This Is The Post body';
+        => "This Is The Post body"
+        >>> $post->save();
+        => true
+
+
+///////////////////////////////
+//.. To add crud functionality to our app we need bunch of
+
+//bunch of functions in our Post controller
+a- index  //the listing of all the post
+b- craete //whitch represent the form
+c- store  //to submitt the creat func to for submitting data to model to database
+d- edit // to editing the form
+e- updtae
+f- show
+g- destroy
+
+1- delete the post controller and recreat it again with  --resource
+ - $ php artisan make:controller PostController --resource
+ - this will creat the controller with all the resources automaticaly
+
+2- use the followig comand to list all the routes used
+ - $php artisan route:list
+
+3- creating routs for all the functions controller
+   to not creat all the routs manually we can use the followig route to add them automaticaly
+   Route::resource('posts', 'PostController');
+
+4- Goto Model // we have already a ton of functionaly by the extends of model
+ - you can sdd some records like..
+    //check laravel documentation for all model records
+    //table Name
+    protected $table = 'posts'; //pasts is the defaul name
+    //Primary Key
+    public $primaryKey = 'id'; //default is 'id'
+    //Timestamps
+    public $timestamps = true; //default
+
+6- the posts page is mapping to the index function in the controller due to the routs resouce routes
+ - goto index function on PostsController and add
+ -return view('posts.index');
+ -goto resources views and creat (index.blade.php) under creating posts folder
+ - at the (index.blade.php) extend the layout.app then include ('conten) section as follows
+ 
+        @extends('layouts.app')
+
+        @section('content')
+            <h1>Posts</h1>
+        @endsection 
+
+7- to fetch our (posts) to our (controller) we bring our (model)
+ - the (model) has a namespace off (app) and class of (Post)
+   so to bringed in we add
+   (use App/Post;) under (use Illuminate\....). then we can use any of the model function by using illequen by addin the followig code to theindex func
+   (Post::all();) // to add all model data //then put it a variable then pass  it to view as
+   $posts = Post::all();
+   return view('post.index')->with('posts', $posts);
+
+ - then go views posts index and loop thought it all
+
+        @extends('layouts.app')
+
+            @section('content')
+                <h1>Posts</h1>
+                @if(count($posts) > 1)
+                    @foreach($posts as $post)
+                        <div class="well">
+                        <h3><a href="/posts/{{$post->id}}">{{$post->title}}</a></h3>
+                        <small>Written on {{$post->created_at}}</small>
+                        </div>
+                    @endforeach
+                @else
+                <p>No Posts found</p>
+                @endif
+            @endsection
+
+
+ - then to fetch each post from database got PostsController and add the followig code under funct show($id)
+    
+   return Post::find($id); // Post is the Post model
+
+- then to creat show.blade.php under view/posts then add your code and markup
+
+8- craeting forms and database
+
+ a - adding the form&html package 
+   - goto laravelcollective and follow the installation and setting guide,.
+   - after installation and setup
+   - goto create.blade.php and add the following code under the h1
+     {!! Form::open(['url' => 'foo/bar']) !!}
+
+    {!! Form::close() !!}
+    
+    then continue markup
+ b - vilidation: goto PostController and edite the store() function
+     $this->validate($request, [
+            'title' => 'required',
+            'body'  => 'required'
+        ]);
+
+**- to create messages(notes) goto views inc and creat messages.blade.php
+    then add messages code 
+    then iclude it in the (layouts)
+
+ - continue finishing post store function
+
+
+ - install laravel ckeditor by going to
+   https://github.com/UniSharp/laravel-ckeditor
+   $composer require uninsharp/laravel-ckeditor
+   ..
+   ..
+9- creat and edite post. goto show.blade.php and a the following link under the small
+    <hr>
+    <a href="/posts/{{$post->id}}/edit" class="btn btn-default">Edit</a>
+
+ - goto PostController the edit() function then add the following code
+        $post = Post::find(id)
+        return view('posts.edit')->with('post', $post);
+
+ - creat edite.blade.php under views/posts
+   then past the markup from creat.blade.php
+
+ - goto update() function at PostController then add the code
+
+ - then goto destroy() function at PostController to add code
