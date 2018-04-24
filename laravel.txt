@@ -312,3 +312,59 @@ g- destroy
 
             return redirect('/posts')->with('post', $post)->with('error', 'Unauthorized Access');
         }
+
+../////...File Upload ....
+1- got form at posts create.blade.php and add the following
+
+    a) {!! Form::open(['action' => 'PostController@store', 'method' => 'POST' , 'enctype' => 'multipart/data']) !!}
+
+    b)before form submitt add
+        <div class="form-group">
+            {{Form::file('cover_image')}}
+        </div>
+
+2- creat new DB  post table column for cover_image
+   $ php artisan make:migration add_cover_image_to_posts
+
+3- goto DB migration at add_cover_image add the following
+
+    //up
+    schema::table('posts', function($table){
+            $table->string('cover_image');
+        });
+
+    //down
+    schema::table('posts', function($table){
+            $table->dropColumn('cover_image');
+        });
+
+4- run migrate at the terminal
+   $ php artisan migrate
+
+5- setting the PostController
+ a) at the store() function validate add the followig
+   'cover_image' => 'image|nullable|max:1999'
+
+ b) // Handle File Upload
+        if(request->hasFile('cover_image')) {
+            //Get filename with the extention
+            $filenameWithExt = $request->file('cover_image')->getClientOriginalImage();
+            //Get just filename
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            //Get just extention
+            $extention = $request->file('cover_image')->getOrignalClientExtention();
+            //Filename to store
+            $fileNameToStore = $filename.'_'.time().'.'.$extention;
+            //Upload the image
+            $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+        }else{
+            $fileNameToStore = 'noimage.jpg'
+        }
+
+6- as storge/app/assets is not accessible hrow the browser we will set a samlink to the bublic folder
+   and its gonna creat new storge folder under the bulic foldr. so todo that just goto comand line adding the following code
+
+   $ php artisan storage:link
+
+7- return again to PostController store() function adding the following code before $post->save()
+   $post->cover_image = $fileNameToStore;
