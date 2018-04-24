@@ -7,6 +7,17 @@ use App\Post;
 // use DB; //for not using elquer just use normal sql
 class PostController extends Controller
 {
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth', ['except' => ['index', 'show']]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -77,6 +88,13 @@ class PostController extends Controller
     public function edit($id)
     {
         $post = Post::find($id);
+
+        // Check for correct user
+        if(auth()->user()->id !== $post->user_id) {
+
+            return redirect('/posts')->with('post', $post)->with('error', 'Unauthorized Access');
+        }
+
         return view('posts.edit')->with('post', $post);
     }
 
@@ -113,6 +131,13 @@ class PostController extends Controller
     public function destroy($id)
     {
         $post = Post::find($id);
+
+        // Check for correct user
+        if(auth()->user()->id !== $post->user_id) {
+
+            return redirect('/posts')->with('post', $post)->with('error', 'Unauthorized Access');
+        }
+        
         $post->delete();
         return redirect('/posts')->with('success', 'Post Deleted Successfully');
     }

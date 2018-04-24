@@ -274,3 +274,41 @@ g- destroy
         by {{$post->user->name}}  //access user throw the relation you make then select the user name
 
 
+---///Access controller
+
+1- goto PostController and add the following
+
+        public function __construct()
+            {
+                $this->middleware('auth', ['except' => ['index', 'show']]);
+            }
+
+2- goto show and add the following 
+
+        @if(!Auth::guest())
+            @if(Auth::user()->id == $post->user_id)
+
+            @endif
+        @endif
+
+3- goto PostController then
+
+ a) at the edit() function add the following 
+
+    $post = Post::find($id);
+
+        // Check for correct user
+        if(auth()->user()->id !== $post->user_id) {
+
+            return redirect('/posts')->with('post', $post)->with('error', 'Unauthorized Access');
+        }
+
+ b) at the destroy() function add the following
+
+    $post = Post::find($id);
+
+        // Check for correct user
+        if(auth()->user()->id !== $post->user_id) {
+
+            return redirect('/posts')->with('post', $post)->with('error', 'Unauthorized Access');
+        }
