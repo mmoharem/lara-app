@@ -55,7 +55,7 @@
                           </li>
                       </ul>
                   </li>
-                  <li><a href="/posts/create">Create Post</a></li>
+                  <li><a href="/dashboard">Dashboard</a></li>
               @endif
           </ul>
       </div>

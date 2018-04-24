@@ -18,7 +18,7 @@ class PostController extends Controller
         // $posts = Post::orderBy('title', 'acc')->take(1)->get(); // use take() to limmit the numb of viewing posts
         //return Post::where('title', 'Post Two')->get();
         //$posts = DB::select('SELECT * FROM posts'); //for not using elquer just use normal sql
-        $posts = Post::orderBy('created_at', 'desc')->paginate(1);
+        $posts = Post::orderBy('created_at', 'desc')->paginate(3);
         return view('posts.index')->with('posts', $posts);
     }
 
@@ -29,7 +29,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('posts.craete');
+        return view('posts.create');
     }
 
     /**
@@ -50,6 +50,7 @@ class PostController extends Controller
         $post = new Post;
         $post->title = $request->input('title');
         $post->body = $request->input('body');
+        $post->user_id = auth()->user()->id;
         $post->save();
 
         return redirect('/posts')->with('success', 'Post Created Successfully');

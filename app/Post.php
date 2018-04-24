@@ -13,4 +13,9 @@ class Post extends Model
     public $primaryKey = 'id'; //default is 'id'
     //Timestamps
     public $timestamps = true; //default
+
+    //relation between blog-pos and users
+    public function user() {
+        return $this->belongsTo('App\User');
+    }
 }

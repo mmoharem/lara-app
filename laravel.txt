@@ -1,3 +1,11 @@
+
+..//Install Laravel
+
+1- download composer
+2- $composer create-project laravel/laravel lara-app
+
+
+
 1- creat pages folder under views
 
 2- create controller then set the route to go the controller function then return view
@@ -195,6 +203,65 @@ g- destroy
 ---///Enabe Authentication
 
 1- using the following comand to enable all the controller and models creating loging on system
-$ php artisan make:auth
+ - $ php artisan make:auth
+   this will creat full Authentication system
 
+2- for creating post after login we need to add user-id
+ - $ php artisan make:migration add_user_id_to_posts
+ - after the migration file created add the following code to it
 
+        //up()
+        Schema::table('posts', function($table) {
+            $table->interger('user_id');
+        })
+
+        //down()
+        Schema::table('posts', function($table) {
+            $table->dropColumn('user_id');
+        })
+
+ - the goto console and run 
+   php artisan migrate
+
+   **note..(if you want to delete it you can use [$php artisan migrate:rollback])
+
+ - then got to Post controller and add the following code to the store() function
+   $post->user_id = auth()->user()->id;
+
+--------///Creat Database Relation...////
+1- creat relation between blog-post and user
+2- goto Post.php model and add the followig code
+    public function user() {
+            return $this->belongTo('app\User');
+        }
+
+3- then go to User.php model and add the following code
+
+        public function posts() {
+                return $this->hasMany('app\Post'); //hasMany() has many relation ship function
+            }
+
+4- then goto dashbord controller at inde() function to fetch post to specific user by adding this code
+        $user_id = auth()->user('id');
+        $user = User::find($user_id);
+        return view('dashboard')->with('posts', $user->posts);
+
+5- then goto dashbord.blade.php add the following
+ 
+<table class="table table-striped">
+                        <tr>
+                            <th>Title</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        @foreach($posts as $post)
+                            <tr>
+                                <th>{{$post->title}}</th>
+                                <th><a href="/post/{{$post->id}}/edit" class="btn btn-default">Edit</a></th>
+                                <th></th>
+                            </tr>
+                        @endforeach
+                    </table>
+
+6- goto DashboardController.php to bring the usr model into dashboard add 
+    use App\User;
