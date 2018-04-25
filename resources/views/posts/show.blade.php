@@ -2,7 +2,8 @@
 
 @section('content')
     <a href="/posts" class="btn btn-default">Back</a>
-        <h1>{{$post->title}}</h1> 
+        <h1 class="post-title__b-margin">{{$post->title}}</h1> 
+        <img style="width:100%" src="/storage/{{$post->cover_image}}" alt="">
     <div>
         {!!$post->body!!}  {{--use this instead of that{{$post->body}} for the html markup in the ckeditor--}}
     </div>
